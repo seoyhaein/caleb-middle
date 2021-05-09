@@ -1,0 +1,54 @@
+{
+  "api": {
+    "auth": {
+      "backend": "none"
+    }
+  },
+  "storage": {
+    "backend": "zookeeper",
+    "zookeeper": {
+      "taskttl": 300000,
+      "dir": "rhythm",
+      "timeout": 10000,
+      "auth": {
+        "scheme": "digest",
+        "digest": {
+          "user": "foo",
+          "password": "bar"
+        }
+      }
+    }
+  },
+  "coordinator": {
+    "backend": "zookeeper",
+    "zookeeper": {
+      "dir": "rhythm",
+      "timeout": 10000,
+      "auth": {
+        "scheme": "digest",
+        "digest": {
+          "user": "foo",
+          "password": "bar"
+        }
+      }
+    }
+  },
+  "secrets": {
+    "backend": "vault",
+    "vault": {
+      "token": "token",
+      "addr": "http://localhost:8200"
+    }
+  },
+  "mesos": {
+    "addrs": ["http://localhost:5050"],
+    "labels": {
+      "one": "1",
+      "two": "2",
+      "three": "3"
+    }
+  },
+  "logging": {
+    "level": "debug"
+  }
+}

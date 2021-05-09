@@ -1,0 +1,12 @@
+{
+  "id": "id",
+  "group": "group",
+  "project": "project",
+  "cpus": 1,
+  "mem": 1024,
+  "cmd": "echo $FOO",
+  "user": "someone",
+  "env": {
+    "FOO": "bar"
+  }
+}
