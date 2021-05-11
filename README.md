@@ -12,5 +12,5 @@
 - ContainerInfo?
 - ec2 scale in/out, 기타 클러스터 구성(시간 오래되서 잊어버림. 젠장)
 - mesos 설치, 관련 스크립트 제작 해야함. 이건 짜투리 시간을 활용하자.(11)
-- aws ec2 계정 2개 살펴보자 -> 따로 문서로 정리 하자
+- aws ec2 계정 2개 살펴보자 -> 따로 문서로 정리 하자 -> ichthysgenomics@icg.ai
 - upd 계정 2개 살리자. -> 문의후 aws 무료 계정에 2개 서버 살려두자.
