@@ -71,12 +71,34 @@
   version = "v1.3.2"
 
 [[projects]]
+  digest = "1:6ad0084de8fefa2b9bca7e6e627bb9868a0dedccc1274a6730a813b7853ac41c"
+  name = "github.com/golang/protobuf"
+  packages = [
+    "proto",
+    "ptypes",
+    "ptypes/any",
+    "ptypes/duration",
+    "ptypes/timestamp",
+  ]
+  pruneopts = "UT"
+  revision = "ae97035608a719c7a1c1c41bed0ae0744bdb0c6f"
+  version = "v1.5.2"
+
+[[projects]]
   digest = "1:dfa0a7a6b64b2ac99259c4e79cc403470a4fa359c41029e0b8be4f419b0a0e5b"
   name = "github.com/google/uuid"
   packages = ["."]
   pruneopts = "UT"
   revision = "bfb86fa49a73e4194d93bea18d7acfe3694438ce"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:42271d481581d8d192e4e3367b1b8fba19526671e2259a61bcf6d2bb418e5656"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "df0f91b29bbbdfc3a686a7a8edbe2b9de2072fdd"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:d06fbb4c29d4266211e7fa20d29b61469db346e6df1bea40a70cea066cf25019"
@@ -223,6 +245,41 @@
   version = "v1.8.1"
 
 [[projects]]
+  digest = "1:5e3750191f9fba3aff9bc6052dd28d3411d57dfcb4fa035e1229032a4af31891"
+  name = "go.opentelemetry.io/contrib"
+  packages = [
+    ".",
+    "instrumentation/google.golang.org/grpc/otelgrpc",
+  ]
+  pruneopts = "UT"
+  revision = "0e5bef9af1c708e28aabcadd3fd8b35c36526e44"
+  version = "v0.20.0"
+
+[[projects]]
+  digest = "1:8e1a40dca1f06a13a086c7d6c43c282bbc60732d3ed877a6fba1220a1ca1b2ca"
+  name = "go.opentelemetry.io/otel"
+  packages = [
+    ".",
+    "attribute",
+    "baggage",
+    "codes",
+    "internal",
+    "internal/baggage",
+    "internal/global",
+    "internal/trace/noop",
+    "metric",
+    "metric/number",
+    "metric/registry",
+    "propagation",
+    "semconv",
+    "trace",
+    "unit",
+  ]
+  pruneopts = "UT"
+  revision = "02d8bdd5d9163f32c48f4db23bf2e589f89f16c0"
+  version = "v0.20.0"
+
+[[projects]]
   branch = "master"
   digest = "1:2cf0822bed777a1bfb17d192e8dbdc530a883526bedc23c107ced6c4d389a52b"
   name = "golang.org/x/crypto"
@@ -232,6 +289,21 @@
   ]
   pruneopts = "UT"
   revision = "83a5a9bb288b4c9523e182ed4f621411a11de3df"
+
+[[projects]]
+  branch = "master"
+  digest = "1:12c0002f158caa2a0641f6e9acdabb4894edc559b4c553c947caabc6a863081a"
+  name = "golang.org/x/net"
+  packages = [
+    "http/httpguts",
+    "http2",
+    "http2/hpack",
+    "idna",
+    "internal/timeseries",
+    "trace",
+  ]
+  pruneopts = "UT"
+  revision = "abc453219eb586afb3fc1742e8c685c28b9f7eea"
 
 [[projects]]
   branch = "master"
@@ -245,12 +317,141 @@
   pruneopts = "UT"
   revision = "d19ff857e887eacb631721f188c7d365c2331456"
 
+[[projects]]
+  digest = "1:d343bfab7897dd73ee9bf8172d1fc83d935b7512067856ed596aaf57a9345f3c"
+  name = "golang.org/x/text"
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/language",
+    "internal/language/compact",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable",
+  ]
+  pruneopts = "UT"
+  revision = "e328d63cff14134669501e0e154e4f141c784322"
+  version = "v0.3.6"
+
+[[projects]]
+  branch = "master"
+  digest = "1:7339759b4869e4b12e0ab4848f0f5edaa3c045b9b1cfe1d22af121605322490c"
+  name = "google.golang.org/genproto"
+  packages = ["googleapis/rpc/status"]
+  pruneopts = "UT"
+  revision = "b6d2f5bf0d7d94a25e4254936bdd6b71682044e2"
+
+[[projects]]
+  digest = "1:ad88ade26a73137af952ea3c942ad107dfe6fa6fe669f07ad4425a51101b0629"
+  name = "google.golang.org/grpc"
+  packages = [
+    ".",
+    "attributes",
+    "backoff",
+    "balancer",
+    "balancer/base",
+    "balancer/grpclb/state",
+    "balancer/roundrobin",
+    "binarylog/grpc_binarylog_v1",
+    "codes",
+    "connectivity",
+    "credentials",
+    "encoding",
+    "encoding/proto",
+    "grpclog",
+    "health",
+    "health/grpc_health_v1",
+    "internal",
+    "internal/backoff",
+    "internal/balancerload",
+    "internal/binarylog",
+    "internal/buffer",
+    "internal/channelz",
+    "internal/credentials",
+    "internal/envconfig",
+    "internal/grpclog",
+    "internal/grpcrand",
+    "internal/grpcsync",
+    "internal/grpcutil",
+    "internal/metadata",
+    "internal/resolver",
+    "internal/resolver/dns",
+    "internal/resolver/passthrough",
+    "internal/resolver/unix",
+    "internal/serviceconfig",
+    "internal/status",
+    "internal/syscall",
+    "internal/transport",
+    "internal/transport/networktype",
+    "keepalive",
+    "metadata",
+    "peer",
+    "resolver",
+    "serviceconfig",
+    "stats",
+    "status",
+    "tap",
+  ]
+  pruneopts = "UT"
+  revision = "0257c8657362b76f24e7a8cfb61df48d4cb735d3"
+  version = "v1.38.0"
+
+[[projects]]
+  digest = "1:18cefdbcccd23ac7224b30c1ae5c1f199fc7c506668c309f648da6a218778b8b"
+  name = "google.golang.org/protobuf"
+  packages = [
+    "encoding/prototext",
+    "encoding/protowire",
+    "internal/descfmt",
+    "internal/descopts",
+    "internal/detrand",
+    "internal/encoding/defval",
+    "internal/encoding/messageset",
+    "internal/encoding/tag",
+    "internal/encoding/text",
+    "internal/errors",
+    "internal/filedesc",
+    "internal/filetype",
+    "internal/flags",
+    "internal/genid",
+    "internal/impl",
+    "internal/order",
+    "internal/pragma",
+    "internal/set",
+    "internal/strs",
+    "internal/version",
+    "proto",
+    "reflect/protodesc",
+    "reflect/protoreflect",
+    "reflect/protoregistry",
+    "runtime/protoiface",
+    "runtime/protoimpl",
+    "types/descriptorpb",
+    "types/known/anypb",
+    "types/known/durationpb",
+    "types/known/timestamppb",
+  ]
+  pruneopts = "UT"
+  revision = "f2d1f6cbe10b90d22296ea09a7217081c2798009"
+  version = "v1.26.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/gofrs/uuid",
     "github.com/gogo/protobuf/proto",
+    "github.com/golang/protobuf/proto",
+    "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/mesos/mesos-go/api/v1/lib",
     "github.com/mesos/mesos-go/api/v1/lib/backoff",
     "github.com/mesos/mesos-go/api/v1/lib/extras/scheduler/callrules",
@@ -266,6 +467,11 @@
     "github.com/mitchellh/cli",
     "github.com/onrik/logrus/filename",
     "github.com/sirupsen/logrus",
+    "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
+    "google.golang.org/grpc",
+    "google.golang.org/grpc/encoding",
+    "google.golang.org/grpc/health",
+    "google.golang.org/grpc/health/grpc_health_v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
