@@ -24,7 +24,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/run/docker.pid:/var/run/docker.pid
-      - ./api/v1/cmd/example-executor/example-executor:/usr/libexec/mesos/mesos-docker-executor
       - /cgroup:/cgroup
       - /sys:/sys
       - /proc:/mnt/proc

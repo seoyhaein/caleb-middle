@@ -41,6 +41,7 @@
     }
   },
   "mesos": {
+    "FrameworkName" : "test",
     "addrs": ["http://localhost:5050"],
     "labels": {
       "one": "1",

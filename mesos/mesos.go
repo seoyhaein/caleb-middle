@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -19,7 +18,8 @@ import (
 	"github.com/mesos/mesos-go/api/v1/lib/scheduler"
 	"github.com/mesos/mesos-go/api/v1/lib/scheduler/calls"
 	"github.com/mesos/mesos-go/api/v1/lib/scheduler/events"
-	"github.com/seoyhaein/caleb-middle/conf"
+	"github.com/seoyhaein/caleb-middle/config"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -27,14 +27,13 @@ var (
 	registrationMaxBackoff = 15 * time.Second
 )
 
-const frameworkName = "rhythm"
-
 // FrameworkId 를 어디에다가 저장할까???  일단은 zk 에다가 집어 넣는 방향으로
 // 환경설정 부터 시작해야함 일단 여기서는 해당 기능을 생략하고 진행한다.
 // 임시로 메모리에다가 저장함.
 
-//TODO 일단 context 살펴봐야함 5/1
-func Run(ctx context.Context, conf *conf.Conf) error {
+// TODO 일단 context 살펴봐야함 5/1
+// TODO 여기를 함수를 일단 3부분으로 나누는 것에 생각하기, 에러의 처리가 약하다. 7/3
+func MesosRun(ctx context.Context, conf *config.Conf) error {
 
 	frameworkIdStore, err := newFrameworkIDStore()
 	if err != nil {
@@ -57,15 +56,15 @@ func Run(ctx context.Context, conf *conf.Conf) error {
 		controller.LiftErrors(),
 	).Handle(events.Handlers{
 		scheduler.Event_HEARTBEAT: events.HandlerFunc(func(ctx context.Context, e *scheduler.Event) error {
-			fmt.Println("Heartbeat")
+			log.Info("Heartbeat")
 			return nil
 		}),
 		scheduler.Event_ERROR: events.HandlerFunc(func(ctx context.Context, e *scheduler.Event) error {
-			fmt.Println(e.GetError().Message)
+			log.Info(e.GetError().Message)
 			return nil
 		}),
 		scheduler.Event_SUBSCRIBED: buildSubscribedEventHandler(frameworkIdStore, conf.Mesos.FailoverTimeout, func(e *scheduler.Event) {
-			fmt.Println("subscribed...")
+			log.Info("subscribed...")
 		}),
 		scheduler.Event_OFFERS: buildOffersEventHandler(cli),
 		scheduler.Event_UPDATE: buildUpdateEventHandler(cli),
@@ -80,10 +79,10 @@ func Run(ctx context.Context, conf *conf.Conf) error {
 		),*/
 		controller.WithEventHandler(handler),
 		controller.WithSubscriptionTerminated(func(err error) {
-			fmt.Println("끝????")
+			log.Info("7/3 이부분 살펴보자.")
 			cancel()
 			if err == io.EOF { //res.Decode error 발생시 io.EOF, 테스트 필
-				fmt.Println("disconnected")
+				log.Info("disconnected")
 			}
 		}),
 	)
@@ -91,16 +90,15 @@ func Run(ctx context.Context, conf *conf.Conf) error {
 }
 
 func newFrameworkIDStore() (store.Singleton, error) {
-	fidStore := store.NewInMemorySingleton()
 	return store.DecorateSingleton(
-		fidStore,
+		store.NewInMemorySingleton(),
 		store.DoSet().AndThen(func(_ store.Setter, v string, _ error) error {
-			log.Println("Framework ID: %s", v)
+			log.Info("Framework ID: %s", v)
 			return nil
 		})), nil
 }
 
-func newFrameworkInfo(conf *conf.Mesos, idStore store.Singleton) *mesos.FrameworkInfo {
+func newFrameworkInfo(conf *config.Mesos, idStore store.Singleton) *mesos.FrameworkInfo {
 	labels := make([]mesos.Label, len(conf.Labels))
 	for k, v := range conf.Labels {
 		func(v string) {
@@ -109,16 +107,16 @@ func newFrameworkInfo(conf *conf.Mesos, idStore store.Singleton) *mesos.Framewor
 	}
 	frameworkInfo := &mesos.FrameworkInfo{
 		User:       conf.User,
-		Name:       frameworkName,
+		Name:       conf.FrameworkName,
 		Checkpoint: &conf.Checkpoint,
 		Capabilities: []mesos.FrameworkInfo_Capability{
 			{Type: mesos.FrameworkInfo_Capability_MULTI_ROLE},
 		},
 		Labels:          &mesos.Labels{labels},
 		FailoverTimeout: func() *float64 { ft := conf.FailoverTimeout.Seconds(); return &ft }(),
-		//WebUiURL:        &conf.WebUIURL,
-		//Hostname:        &conf.Hostname,
-		//Principal:       &conf.Principal,
+		//WebUiURL:        &config.WebUIURL,
+		//Hostname:        &config.Hostname,
+		//Principal:       &config.Principal,
 		Roles: conf.Roles,
 	}
 	//TODO 이코드는 조기에 머지 않을 텐데..
@@ -127,30 +125,16 @@ func newFrameworkInfo(conf *conf.Mesos, idStore store.Singleton) *mesos.Framewor
 	return frameworkInfo
 }
 
-func newFrameworkIDStore1() (store.Singleton, error) {
-	/*fidStore := store.NewInMemorySingleton()
-	return store.DecorateSingleton(
-		fidStore,
-		store.DoSet().AndThen(func(_ store.Setter, v string, _ error) error {
-			log.Println("Framework ID: %s", v)
-			return nil
-		})), nil*/
-
-	return store.DecorateSingleton(
-		store.NewInMemorySingleton(),
-		store.DoSet().AndThen(func(_ store.Setter, v string, _ error) error {
-			return nil
-		})), nil
-}
-
-// 이게 문제인듯한데...
-// client 객체에서 endpoint 대신하는 건 문제 없는지.. 확인하기.
-// mesos-go 에서 테스트를 진행해보자. 해당 코드를 넣어서 진행.
-// frameworkid 는 zk 에도 저장하고, 메모리에도 올려서 계속업데이트 해줘야함.
-func newClient(c *conf.Mesos, frameworkId store.Singleton) (calls.Caller, error) {
+// TODO 7/3 여기 코드 부분에서 버그 있음
+func newClient(c *config.Mesos, frameworkId store.Singleton) (calls.Caller, error) {
 	if len(c.Addrs) == 0 {
 		return nil, errors.New("List of Mesos addresses is empty")
 	}
+	//TODO 7/3
+	/*
+	  일단 아래 코드의 경우는 c.Addrs[0] 이런식으로 강제로 첫번째 마스터의 ip 를 세팅하도록 하였는데, 중복될 경우는 바꿔줘야함.
+	*/
+
 	cli := httpcli.New(
 		httpcli.Endpoint(fmt.Sprintf("%s/api/v1/scheduler", c.Addrs[0])),
 		httpcli.Do(httpcli.With(
@@ -166,7 +150,7 @@ func newClient(c *conf.Mesos, frameworkId store.Singleton) (calls.Caller, error)
 func logCalls(messages map[scheduler.Call_Type]string) callrules.Rule {
 	return func(ctx context.Context, c *scheduler.Call, r mesos.Response, err error, ch callrules.Chain) (context.Context, *scheduler.Call, mesos.Response, error) {
 		if message, ok := messages[c.GetType()]; ok {
-			log.Println(message)
+			log.Info(message)
 		}
 		return ch(ctx, c, r, err)
 	}
@@ -174,8 +158,7 @@ func logCalls(messages map[scheduler.Call_Type]string) callrules.Rule {
 
 func logAllEvents() eventrules.Rule {
 	return func(ctx context.Context, e *scheduler.Event, err error, ch eventrules.Chain) (context.Context, *scheduler.Event, error) {
-		log.Println("%+v", *e)
-		//log.Debugf("%+v", *e)
+		log.Info("%+v", *e)
 		return ch(ctx, e, err)
 	}
 }

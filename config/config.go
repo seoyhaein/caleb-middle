@@ -1,4 +1,4 @@
-package conf
+package config
 
 import (
 	"encoding/json"
@@ -141,6 +141,7 @@ type SecretsVault struct {
 // Mesos 에서 Roles 과 Principal
 // http://mesos.apache.org/documentation/latest/authorization/
 type Mesos struct {
+	FrameworkName   string
 	Auth            MesosAuth
 	Addrs           []string
 	CACert          string
@@ -201,6 +202,7 @@ type LoggingSentry struct {
 	Tags   map[string]string
 }
 
+// 7/3 이 함수의 의미를 파악하자.
 func millisecondFieldsToDuration(v reflect.Value) {
 	for i := 0; i < v.NumField(); i++ {
 		if v.Field(i).Kind() == reflect.Struct {
@@ -218,10 +220,27 @@ func millisecondFieldsToDuration(v reflect.Value) {
 }
 
 // New creates new configuration struct.
-func New(path string) (*Conf, error) {
-	file, err := ioutil.ReadFile(path)
+// 7/3 일단 여기를 차후 정리를 해야함.
+func New(args []string) *Conf {
+
+	if args[0] != "config" {
+		return nil
+	}
+	file, err := ioutil.ReadFile(args[1])
 	if err != nil {
-		return nil, err
+		return &Conf{
+			Mesos: Mesos{
+				FrameworkName:   "test",
+				Addrs:           []string{"http://localhost:5050"},
+				FailoverTimeout: 1000 * 3600 * 24 * 7, // 7d
+				Roles:           []string{"*"},
+				Auth: MesosAuth{
+					Type: MesosAuthTypeNone,
+				},
+			},
+		}
+
+		//return nil, err
 	}
 	var conf = &Conf{
 		API: API{
@@ -279,13 +298,11 @@ func New(path string) (*Conf, error) {
 		},
 	}
 	err = json.Unmarshal(file, conf)
-	if err != nil {
-		return nil, err
-	}
+
 	conf.Coordinator.ZooKeeper.ElectionDir = "election/mesos_scheduler"
 	// All time.Duration fields from Conf should be in milliseconds so
 	// conversion to time elapsed in nanoseconds (represented by time.Duration)
 	// is needed.
 	millisecondFieldsToDuration(reflect.ValueOf(conf).Elem())
-	return conf, nil
+	return conf
 }

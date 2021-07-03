@@ -2,7 +2,6 @@ package mesos
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/mesos/mesos-go/api/v1/lib"
@@ -13,6 +12,7 @@ import (
 	"github.com/mesos/mesos-go/api/v1/lib/scheduler/calls"
 	"github.com/mesos/mesos-go/api/v1/lib/scheduler/events"
 	"github.com/seoyhaein/caleb-middle/mesos/jobsscheduler"
+	log "github.com/sirupsen/logrus"
 )
 
 // eventHandler 를 만드는 방식은 몇가지가 있다. 이것을 기억해야함.
@@ -40,7 +40,7 @@ func buildOffersEventHandler(cli calls.Caller) events.HandlerFunc {
 	return func(ctx context.Context, e *scheduler.Event) error {
 		offers := e.GetOffers().GetOffers()
 
-		fmt.Printf("Number of received offers: %d\n", len(offers))
+		log.Info("Number of received offers: %d\n", len(offers))
 
 		for i := range offers {
 			if ctx.Err() != nil {
@@ -50,21 +50,21 @@ func buildOffersEventHandler(cli calls.Caller) events.HandlerFunc {
 			s := "/home/dev-comd/go/src/github.com/seoyhaein/caleb-middle/bin/echo.json"
 			task, e := jobsscheduler.FindTasksForOffer(&offer, s)
 			if e != nil {
-				fmt.Printf("Failed to find tasks for offer: %s\n", e)
+				log.Info("Failed to find tasks for offer: %s\n", e)
 				return e
 			}
 			//tasks := jobsscheduler.FindTasksForOfferT(ctx, &offer)
 			// tasks 가 배열로 들어가면서 offer.ID 는 한개라면 좀 이해가 안됨. Offer가 여러개 들어가야함. 그것도 맞게 들어가야함.
 			accept := calls.Accept(calls.OfferOperations{calls.OpLaunch(task)}.WithOffers(offer.ID))
 			// task 정보가 잘못되었다는 소리인가???? mesos-go 다시 샆려보기
-			err := calls.CallNoData(ctx, cli, accept)
-			//err := calls.CallNoData(ctx, cli, accept.With(calls.RefuseSeconds(time.Hour)))
+			err := calls.CallNoData(ctx, cli, accept.With(calls.RefuseSeconds(time.Hour)))
+
 			if err != nil {
-				fmt.Println("Failed to accept offer: %s", err)
+				log.Info("Failed to accept offer: %s", err)
 				return err
 			}
 			//for _, task := range tasks {
-			fmt.Println("Task staged: %s", task.TaskID.Value)
+			log.Info("Task staged: %s", task.TaskID.Value)
 			//}
 
 		}
@@ -79,10 +79,10 @@ func buildUpdateEventHandler(cli calls.Caller) eventrules.Rule {
 		status := e.GetUpdate().GetStatus()
 		switch st := status.GetState(); st {
 		case mesos.TASK_FINISHED, mesos.TASK_RUNNING, mesos.TASK_STAGING, mesos.TASK_STARTING:
-			fmt.Println("status update from agent %q: %v", status.GetAgentID().GetValue(), st)
+			log.Info("status update from agent %q: %v", status.GetAgentID().GetValue(), st)
 			if st == mesos.TASK_RUNNING && status.AgentID != nil {
 
-				fmt.Printf("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
+				log.Info("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
 				return ch(ctx, e, err)
 				/*cid := status.GetContainerStatus().GetContainerID()
 				if cid != nil {
@@ -91,25 +91,25 @@ func buildUpdateEventHandler(cli calls.Caller) eventrules.Rule {
 
 			}
 			if st != mesos.TASK_FINISHED {
-				fmt.Printf("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
+				log.Info("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
 				return ch(ctx, e, err)
 			}
 
 		case mesos.TASK_LOST:
-			fmt.Printf("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
+			log.Info("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
 			return ch(ctx, e, err)
 		case mesos.TASK_FAILED:
-			fmt.Printf("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
+			log.Info("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
 			return ch(ctx, e, err)
 		case mesos.TASK_KILLED:
-			fmt.Printf("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
+			log.Info("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
 			return ch(ctx, e, err)
 			//fallthrough
 		case mesos.TASK_ERROR:
-			fmt.Printf("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
+			log.Info("AgentID: %s, TaskID: %s, %v\n", status.AgentID.Value, status.TaskID.Value, st)
 			return ch(ctx, e, err)
 		default:
-			fmt.Printf("unexpected task state, aborting %v\n", st)
+			log.Info("unexpected task state, aborting %v\n", st)
 			return ch(ctx, e, err)
 		}
 		return ch(ctx, e, err)
