@@ -1,0 +1,17 @@
+id : seoy@1
+pwd : Neanias78!
+srv : haiip1.haion.net
+
+pppd call haiip
+
+--------------
+1. install
+yum install pptp
+2. using root account, run centos.sh
+
+firewall setting
+3. firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -p gre -j ACCEPT
+4. firewall-cmd --permanent --zone=public --add-port=1723/tcp
+5. firewall-cmd --permanent --zone=public --add-port=22/tcp
+6. firewall-cmd --reload
+6.1 check => firewall-cmd --zone=public --list-all
