@@ -76,7 +76,7 @@ EOF"
 cd ${ICGDIR}
 git clone https://github.com/apache/mesos.git
 cd ${ICGMESOSDIR}
-git checkout 1.2.3
+git checkout 1.11.0
 ./bootstrap
 mkdir build
 cd ${ICGMESOSDIR}/build
