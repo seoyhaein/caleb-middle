@@ -92,7 +92,7 @@ ${PYTHON}/bin/pip3 install awscli
 cd ${ICGDIR}
 git clone https://github.com/apache/mesos.git
 cd ${ICGMESOSDIR}
-git checkout 1.2.3
+git checkout 1.11.0
 ./bootstrap
 mkdir -p ${ICGMESOSDIR}/build
 cd ${ICGMESOSDIR}/build
