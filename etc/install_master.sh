@@ -16,7 +16,7 @@ set -x
 yum install -y tar wget git
 wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
 yum install -y epel-release
-yum install -y iptables-services
+## yum install -y iptables-services
 
 sudo bash -c "cat > /etc/yum.repos.d/wandisco-svn.repo <<EOF
 [WANdiscoSVN]
