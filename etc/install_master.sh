@@ -57,7 +57,7 @@ mkdir -p ${ICGMESOSDIR}
 
 cd ${ICGDIR}
 
-wget http://apache.mirror.cdnetworks.com/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz
+wget https://archive.apache.org/dist/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz
 tar -xzvf zookeeper-3.4.14.tar.gz
 cd zookeeper-3.4.14 
 
